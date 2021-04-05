@@ -54,6 +54,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }//INFO
     
     //CLLocationManagerDelegate Methods
+	#warning("FEEDBACK: Dropping a map pin every time the users location changes will quickly clutter up the map. Especially if you are moving.")
+	#warning("FEEDBACK: I think there was a misunderstanding in the requirements here. You dont need to drop map pins at the users current location. Only for POI/Routes")
+	#warning("FEEDBACK: If you do want to show the user's location on the map: MKMap.showsUserLocation = true")
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
         
         let mUserLocation:CLLocation = locations[0] as CLLocation
@@ -72,6 +75,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             MKMap.addAnnotation(mkAnnotation)
         
     }//locationManager()
+	
+	#warning("""
+		"FEEDBACK: Not an issue as this isnt a production app, but you should also implement the LocationManagerDelegates didChangeAuthorization delegate method.
+		This would let you check if the user rejected location permission or not.
+		Its also the ideal place to enable the MKMap.showsUserLocation if you wanted to show the user's current location.
+		""")
+	
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error){
         
@@ -94,6 +104,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }//determineCurrentLocation()
     
     //set a pin at the current location
+	#warning("FEEDBACK: see previous feedback about map pins on users location.")
     func setUsersClosestLocation(mLattitude: CLLocationDegrees, mLongitude: CLLocationDegrees) -> String {
         let geoCoder = CLGeocoder()
         let location = CLLocation(latitude: mLattitude, longitude: mLongitude)
@@ -114,9 +125,12 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return currentLocationStr
     }
     
+	#warning("FEEDBACK: To save yourself some time (and code) in the future. With Codable, you only need to include properties you want to deserialize. It will ignore any you omit. So for example, your Item struct you could have got away with just including: title, ctype, location, data. I do appreciate the effort to capture all of the properties though.")
+	#warning("FEEDBACK: Just me being picky, these should go into a separate file or multiple files to keep your view controllers clean. One of the biggest issues with UIKit is that view controllers get really large really fast. Whenever in doubt, put something into an extension or separate file.")
     //decode JSON
     //let response= try? JSONDecoder().decode(Response.self, from: datae
     // MARK: - Response
+	#warning("I also use this website to generate my json structs... 😂")
     struct Response: Codable {
         let status: String
         let code, version: Int
@@ -233,7 +247,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         private func getData() {
             
             // Create URL
+			#warning("FEEDBACK: referring to my earlier feedback about pins on the user location, I think there might have been a misunderstanding in the requirements. We wanted you to fetch POIs/Routes using your current location.")
+			#warning("FEEDBACK: If there were no results for your current location, using the below URL is fine.")
             let url = URL(string: "https://engine.kissakired.com/api/v5/feed/nearby?lat=52.152803&lng=9.9417843")
+			
             guard let requestUrl = url else { fatalError() }
 
             // Create URL Request
@@ -243,6 +260,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             request.httpMethod = "GET"
             
             //set the HTTP request header
+			#warning("""
+				I think by default URL session handled this But it should be:
+				request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+				""")
             request.setValue("Content-Type”: “application/json", forHTTPHeaderField: "Accept")
             
             
@@ -302,6 +323,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let sourcePlacemark = MKPlacemark(coordinate: source)
         let destPlacemark = MKPlacemark(coordinate: destination)
         
+		#warning("Nice job, you added directions.")
         let directionRequest = MKDirections.Request()
         directionRequest.source = MKMapItem(placemark: sourcePlacemark)
         directionRequest.destination = MKMapItem(placemark: destPlacemark)
