@@ -15,11 +15,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     //variables
     @IBOutlet weak var MKMap: MKMapView!
+	@IBOutlet weak var locationTableView: UITableView!
     var locationManager:CLLocationManager!
     var currentLocationStr = "Current location"
     let newPin = MKPointAnnotation()
     var info = [INFO]()
-    @IBOutlet weak var locationTableView: UITableView!
     var userLong = 0.0
     var userLat = 0.0
     
@@ -41,7 +41,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
     }//viewDidAppear()
     
-    struct INFO{
+    struct INFO {
         let title: String
         let lng: Double
         let lat: Double
@@ -114,8 +114,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return currentLocationStr
     }
     
-    //decode JSON
-    //let response= try? JSONDecoder().decode(Response.self, from: datae
+	/// Decode JSON
     // MARK: - Response
     struct Response: Codable {
         let status: String
@@ -331,10 +330,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
 
 }//ViewController()
 
-extension ViewController: UITableViewDelegate{
+extension ViewController: UITableViewDelegate {
     //what happens when you click the table view
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
-        let cell = tableView.cellForRow(at: indexPath)
+		_ = tableView.cellForRow(at: indexPath)
         
         if (self.info[indexPath.row].ctype == "Route"){
             //call a function to draw a line
@@ -348,7 +347,7 @@ extension ViewController: UITableViewDelegate{
     }
 }//UITableViewDelegate
 
-extension ViewController: UITableViewDataSource{
+extension ViewController: UITableViewDataSource {
     //number of rows to show in the table
     func tableView(_ tableView: UITableView, numberOfRowsInSection Section: Int) -> Int{
 
