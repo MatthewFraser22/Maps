@@ -2,14 +2,13 @@
 //  ViewController.swift
 //  Maps
 //
-//  Created by Matt F on 2021-04-02.
+//  Created by Matthew Fraser on 2021-04-02.
 //
 
 import UIKit
 import MapKit
 import Foundation
-//get user location
-import CoreLocation
+import CoreLocation //Get user Location
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
     
