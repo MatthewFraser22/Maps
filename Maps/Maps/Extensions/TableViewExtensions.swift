@@ -47,8 +47,6 @@ extension ViewController: UITableViewDataSource {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 		//displays the value name in the cell
 		cell.textLabel?.text = self.info[indexPath.row].title
-
 		return cell
 	}
-	
 }
