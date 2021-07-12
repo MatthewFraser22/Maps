@@ -41,7 +41,7 @@
                     </view>
                     <connections>
                         <outlet property="MKMap" destination="hIJ-QW-xoA" id="nia-e0-QvY"/>
-                        <outlet property="locationTableView" destination="aOG-XE-DfJ" id="l6T-35-PgT"/>
+                        <outlet property="locationTableView" destination="aOG-XE-DfJ" id="8Lo-NI-xjM"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

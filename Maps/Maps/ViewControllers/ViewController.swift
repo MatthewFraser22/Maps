@@ -8,7 +8,8 @@
 import UIKit
 import MapKit
 import Foundation
-import CoreLocation /// Get user Location
+import CoreLocation
+import Combine
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
     
@@ -19,25 +20,47 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
 	
 	// MARK: - Variables
 	
+	private var cancellable: AnyCancellable?
 	var info = [INFO]()
-    var locationManager: CLLocationManager!
-    var currentLocationStr = "Current location"
-    var userLong = 0.0
-    var userLat = 0.0
+    private var locationManager: CLLocationManager!
+    private var currentLocationStr = "Current location"
+    private var userLong = 0.0
+    private var userLat = 0.0
 	
 	// MARK: - Constants
 	
 	let newPin = MKPointAnnotation()
-    
+	let networking = Networking()
 	
 	/// View Did Load initialiaze stuff to load on view
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-        locationTableView.delegate = self /// Drop Pin on Map
-        locationTableView.dataSource = self
-		getData()
+		self.cancellable = networking.getAllData()
+			.sink(receiveCompletion: {_ in}, receiveValue: { response in
+				for i in response.payload?.items ?? [] {
+					self.info.append(
+						INFO(
+							title: i.title!,
+							lng: i.location!.lng!,
+							lat: i.location!.lat!,
+							polyline: i.data?.polyline,
+							orginLat: (i.data?.origin?.lat),
+							orginLong: (i.data?.origin?.lng),
+							destinationLat: (i.data?.destination?.lat),
+							destinationLong: (i.data?.destination?.lng),
+							ctype: i.ctype!)
+					)
+				}
+				DispatchQueue.main.async {
+					self.locationTableView.reloadData()
+				}
+				
+			})
+        locationTableView.delegate = self
         self.MKMap.delegate = self
+		locationTableView.dataSource = self
+		
 
     }
     
@@ -47,8 +70,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
 	
 	/// Description: Location manager delegate methods
 	/// - Parameters:
-	///   - manager: <#manager description#>
-	///   - locations: <#locations description#>
+	///   - manager: manager description
+	///   - locations: locations description
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
         
         let mUserLocation:CLLocation = locations[0] as CLLocation
@@ -112,67 +135,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         }
         return currentLocationStr
     }
-	
-	/// HTTP GET Request
-	
-	func getData() {
-		// Create URL
-		let url = URL(string: Constants.URLs.nearbyApi)
-		guard let requestUrl = url else { fatalError() }
-		
-		// Create URL Request
-		var request = URLRequest(url: requestUrl)
-		
-		// Specify HTTP Method to use
-		request.httpMethod = "GET"
-		
-		//set the HTTP request header
-		request.setValue("Content-Type”: “application/json", forHTTPHeaderField: "Accept")
-		
-		URLSession.shared.dataTask(with: request) { data, response, error in
-			// Check if Error took place
-			if let error = error {
-				print("Error took place \(error)")
-				return
-			}
-			
-			// Read HTTP Response Status code
-			if let response = response as? HTTPURLResponse {
-				print("Response HTTP Status code: \(response.statusCode)")
-			}
-			
-			if let data = data {
-				do {
-					let res = try JSONDecoder().decode(Response.self, from: data)
-					
-					for i in res.payload?.items ?? []{
-
-						self.info.append(
-							INFO(
-								title: i.title!,
-								lng: i.location!.lng!,
-								lat: i.location!.lat!,
-								polyline: i.data?.polyline,
-								orginLat: (i.data?.origin?.lat),
-								orginLong: (i.data?.origin?.lng),
-								destinationLat: (i.data?.destination?.lat),
-								destinationLong: (i.data?.destination?.lng),
-								ctype: i.ctype!)
-						)
-						
-					}
-					
-					DispatchQueue.main.async {
-						self.locationTableView.reloadData()
-					}
-					
-				} catch let error {
-					print(error)
-				}
-			}
-		}.resume()
-
-	}
     
     func dropPin(long: Double, lat: Double){
         let annotation = MKPointAnnotation()
